@@ -59,7 +59,8 @@ col1.metric("Total Responses", len(df))
 col2.metric("Average Recommendation (NPS Proxy)", f"{nps_avg:.1f} / 10")
 
 # Calculate average across 1-5 scale questions
-likert_cols = [c for c in df.columns if c != "Timestamp" and c != nps_col]
+numeric_cols = df.select_dtypes(include='number').columns
+likert_cols = [c for c in numeric_cols if c != nps_col]
 if likert_cols:
     overall_avg = df[likert_cols].mean().mean()
     col3.metric("Overall Engagement Score", f"{overall_avg:.1f} / 5")
