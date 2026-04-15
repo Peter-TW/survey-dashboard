@@ -35,6 +35,7 @@ def generate_dummy_data():
         # scale 1-5
         data[q] = np.random.choice([1, 2, 3, 4, 5], p=[0.05, 0.1, 0.2, 0.45, 0.2], size=100)
     data["How likely is it that you would recommend Hanson Wade to a friend or colleague? (10 being strongly recommend)"] = np.random.choice(range(1, 11), size=100)
+    data["Which team do you sit in?"] = np.random.choice(["IT", "HR", "Sales", "Marketing", "Production"], size=100)
     return pd.DataFrame(data)
 
 st.title("📊 Hanson Wade Engagement Survey")
@@ -46,14 +47,29 @@ if not is_live:
     st.warning("⚠️ **Note:** Currently showing **Mock Data**. Please update `GOOGLE_SHEET_CSV_URL` in `dashboard.py` to see live results.")
 
 st.sidebar.header("Filters")
-st.sidebar.markdown("Use this to filter by date or department (if added to the form later).")
+
+dept_col = "Which team do you sit in?"
+if dept_col in df.columns:
+    all_depts = sorted(df[dept_col].dropna().unique().tolist())
+    
+    # Implementing "Select All" behavior
+    select_all = st.sidebar.checkbox("Select all departments", value=True)
+    if select_all:
+        selected_depts = st.sidebar.multiselect("Select Department(s)", options=all_depts, default=all_depts)
+    else:
+        selected_depts = st.sidebar.multiselect("Select Department(s)", options=all_depts)
+        
+    # Apply filter
+    df = df[df[dept_col].isin(selected_depts)]
+else:
+    st.sidebar.markdown("Use this to filter by date or department (if added to the form later).")
 
 st.divider()
 
 # --- OVERALL METRICS ---
 col1, col2, col3 = st.columns(3)
 nps_col = "How likely is it that you would recommend Hanson Wade to a friend or colleague? (10 being strongly recommend)"
-nps_avg = df[nps_col].mean() if nps_col in df.columns else 0
+nps_avg = df[nps_col].mean() if nps_col in df.columns and not df.empty else 0
 
 col1.metric("Total Responses", len(df))
 col2.metric("Average Recommendation (NPS Proxy)", f"{nps_avg:.1f} / 10")
@@ -62,10 +78,25 @@ col2.metric("Average Recommendation (NPS Proxy)", f"{nps_avg:.1f} / 10")
 numeric_cols = df.select_dtypes(include='number').columns
 likert_cols = [c for c in numeric_cols if c != nps_col]
 if likert_cols:
-    overall_avg = df[likert_cols].mean().mean()
+    overall_avg = df[likert_cols].mean().mean() if not df.empty else 0
     col3.metric("Overall Engagement Score", f"{overall_avg:.1f} / 5")
 
 st.divider()
+
+if dept_col in df.columns:
+    st.subheader("Responses by Department")
+    dept_counts = df[dept_col].value_counts().reset_index()
+    dept_counts.columns = ['Department', 'Number of Responses']
+    
+    fig_dept = px.bar(
+        dept_counts, 
+        x='Department', 
+        y='Number of Responses',
+        title="Total Responses per Department",
+        color_discrete_sequence=['#4B0082']
+    )
+    st.plotly_chart(fig_dept, use_container_width=True)
+    st.divider()
 
 # --- DISTRIBUTION CHARTS ---
 st.subheader("Statement Analysis")
