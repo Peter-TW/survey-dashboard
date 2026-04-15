@@ -12,7 +12,7 @@ st.set_page_config(page_title="Hanson Wade Survey Dashboard", layout="wide", ini
 # 2. Get the Sheet ID from the URL and use the format below:
 GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1zxVOFaptCR50SZ4tCS0lkiV7zkbyGeigHrEd8QWdfSs/export?format=csv"
 
-@st.cache_data(ttl=600)  # cache data for 10 minutes
+@st.cache_data(ttl=60)  # cache data for 1 minute
 def load_data(url):
     try:
         df = pd.read_csv(url)
