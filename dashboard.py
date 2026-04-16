@@ -154,7 +154,9 @@ if selected_q and tenure_col in df.columns:
     tenure_avg['Average Score Formatted'] = tenure_avg['Average Score'].round(2)
     
     tenure_order = ["< 6 months", "6 months - 1 year", "1 - 3 years", "3 -5 years", "> 5 years"]
-    tenure_avg['Tenure'] = pd.Categorical(tenure_avg['Tenure'], categories=tenure_order, ordered=True)
+    active_tenures = [t for t in tenure_order if t in tenure_avg['Tenure'].values]
+    
+    tenure_avg['Tenure'] = pd.Categorical(tenure_avg['Tenure'], categories=active_tenures, ordered=True)
     tenure_avg = tenure_avg.sort_values(by='Tenure')
     
     fig_tenure = px.bar(
@@ -163,7 +165,7 @@ if selected_q and tenure_col in df.columns:
         y='Average Score',
         text='Average Score Formatted',
         range_y=[0, 5.5],
-        category_orders={"Tenure": tenure_order},
+        category_orders={"Tenure": active_tenures},
         color_discrete_sequence=['#1f77b4']
     )
     fig_tenure.update_traces(textposition='outside')
