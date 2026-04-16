@@ -69,10 +69,17 @@ st.divider()
 # --- OVERALL METRICS ---
 col1, col2, col3 = st.columns(3)
 nps_col = "How likely is it that you would recommend Hanson Wade to a friend or colleague? (10 being strongly recommend)"
-nps_avg = df[nps_col].mean() if nps_col in df.columns and not df.empty else 0
+
+nps_score = 0
+if nps_col in df.columns and not df.empty:
+    total_valid = len(df[nps_col].dropna())
+    if total_valid > 0:
+        promoters = len(df[df[nps_col] >= 9])
+        detractors = len(df[df[nps_col] <= 6])
+        nps_score = ((promoters / total_valid) - (detractors / total_valid)) * 100
 
 col1.metric("Total Responses", len(df))
-col2.metric("Average Recommendation (NPS Proxy)", f"{nps_avg:.1f} / 10")
+col2.metric("Net Promoter Score (NPS)", f"{nps_score:.0f}")
 
 # Calculate average across 1-5 scale questions
 numeric_cols = df.select_dtypes(include='number').columns
@@ -127,5 +134,16 @@ st.subheader("All Ratings Overview")
 averages = df[likert_cols].mean().reset_index()
 averages.columns = ['Statement', 'Average Score']
 averages = averages.sort_values(by='Average Score', ascending=False)
-styled_averages = averages.style.format({"Average Score": "{:.2f}"}).set_properties(**{'text-align': 'center'})
-st.dataframe(styled_averages, use_container_width=True)
+st.dataframe(
+    averages,
+    use_container_width=True,
+    hide_index=True,
+    column_config={
+        "Statement": st.column_config.TextColumn("Statement"),
+        "Average Score": st.column_config.NumberColumn(
+            "Average Score",
+            format="%.2f",
+            alignment="center"
+        )
+    }
+)
