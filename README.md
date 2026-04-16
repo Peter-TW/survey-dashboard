@@ -66,26 +66,7 @@ Once the form is created and you have the Google Sheet URL from the step above, 
 5. Around **Line 12**, replace `YOUR_SHEET_ID_HERE` with your actual Sheet ID.
 6. Save the file.
 
-### 4. (Optional) Launch the Dashboard Locally
-
-If you want to view or test the dashboard on your own machine:
-
-1. Open your terminal, PowerShell, or Command Prompt.
-2. Ensure you have the required python libraries by running:
-   ```bash
-   py -m pip install streamlit pandas plotly numpy
-   ```
-3. Navigate to this folder where your scripts are stored:
-   ```bash
-   cd "C:\Users\PeterLin\OneDrive - Hanson Wade\Desktop\P_Testing\Survey"
-   ```
-4. Run the Streamlit app:
-   ```bash
-   py -m streamlit run dashboard.py
-   ```
-5. **Where is my local Dashboard URL?** A browser window will open automatically, but it will always be listening at your local URL: **[http://localhost:8501](http://localhost:8501)**.
-
-### 5. How to Add or Update Questions
+### 4. How to Add or Update Questions
 
 If you want to update existing questions or add new ones in the future, you have two options:
 
