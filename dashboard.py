@@ -23,10 +23,10 @@ def load_data(url):
 
 def generate_dummy_data():
     questions = [
-        "Hanson Wade Group cares about my wellbeing",
+        "Group cares about my wellbeing",
         "The pressure in my job feels manageable",
         "I am able to provide my customers with great service",
-        "I believe Hanson Wade Group is a meritocracy",
+        "I believe Group is a meritocracy",
         "I am happy in my job"
     ]
     np.random.seed(42)
@@ -108,7 +108,7 @@ likert_cols = [c for c in numeric_cols if c != nps_col]
 QUESTION_CATEGORIES = {
     "The pressure in my job feels manageable": "Role and Career Progression",
     "I am able to provide my customers with great service": "Role and Career Progression",
-    "I believe Hanson Wade Group is a meritocracy": "Role and Career Progression",
+    "I believe Group is a meritocracy": "Role and Career Progression",
     "I am happy in my job": "Role and Career Progression",
     "I am fairly rewarded for my role": "Role and Career Progression",
     "I receive sufficient training to help me achieve and advance in my role": "Role and Career Progression",
