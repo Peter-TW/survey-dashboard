@@ -234,3 +234,59 @@ if likert_cols:
     )
 else:
     st.info("No categories selected.")
+
+# --- NPS ANALYSIS ---
+st.divider()
+st.subheader("NPS Analysis")
+
+def calc_nps(series):
+    total = len(series.dropna())
+    if total == 0: return 0
+    promoters = (series >= 9).sum()
+    detractors = (series <= 6).sum()
+    return ((promoters / total) - (detractors / total)) * 100
+
+if nps_col in df.columns:
+    nps_col1, nps_col2 = st.columns(2)
+    
+    # Department NPS
+    if dept_col in df.columns:
+        dept_nps = df.groupby(dept_col)[nps_col].apply(calc_nps).reset_index()
+        dept_nps.columns = ['Department', 'NPS Score']
+        dept_nps['NPS Score Formatted'] = dept_nps['NPS Score'].round(0)
+        dept_nps = dept_nps.sort_values(by='Department')
+        
+        fig_nps_dept = px.bar(
+            dept_nps, 
+            x='Department', 
+            y='NPS Score',
+            text='NPS Score Formatted',
+            color_discrete_sequence=['#4B0082']
+        )
+        fig_nps_dept.update_traces(textposition='outside')
+        fig_nps_dept.update_layout(xaxis_title="Department", yaxis_title="NPS Score", title="NPS by Department")
+        nps_col1.plotly_chart(fig_nps_dept, use_container_width=True)
+        
+    # Tenure NPS
+    if tenure_col in df.columns:
+        tenure_nps = df.groupby(tenure_col)[nps_col].apply(calc_nps).reset_index()
+        tenure_nps.columns = ['Tenure', 'NPS Score']
+        tenure_nps['NPS Score Formatted'] = tenure_nps['NPS Score'].round(0)
+        
+        tenure_order = ["< 6 months", "6 months - 1 year", "1 - 3 years", "3 -5 years", "> 5 years"]
+        active_nps_tenures = [t for t in tenure_order if t in tenure_nps['Tenure'].values]
+        
+        tenure_nps['Tenure'] = pd.Categorical(tenure_nps['Tenure'], categories=active_nps_tenures, ordered=True)
+        tenure_nps = tenure_nps.sort_values(by='Tenure')
+        
+        fig_nps_tenure = px.bar(
+            tenure_nps, 
+            x='Tenure', 
+            y='NPS Score',
+            text='NPS Score Formatted',
+            category_orders={"Tenure": active_nps_tenures},
+            color_discrete_sequence=['#1f77b4']
+        )
+        fig_nps_tenure.update_traces(textposition='outside')
+        fig_nps_tenure.update_layout(xaxis_title="How long have you been with Group?", yaxis_title="NPS Score", title="NPS by Tenure")
+        nps_col2.plotly_chart(fig_nps_tenure, use_container_width=True)
