@@ -104,6 +104,44 @@ col2.metric("Net Promoter Score (NPS)", f"{nps_score:.0f}")
 numeric_cols = df.select_dtypes(include='number').columns
 likert_cols = [c for c in numeric_cols if c != nps_col]
 
+QUESTION_CATEGORIES = {
+    "The pressure in my job feels manageable": "Role and Career Progression",
+    "I am able to provide my customers with great service": "Role and Career Progression",
+    "I believe Hanson Wade Group is a meritocracy": "Role and Career Progression",
+    "I am happy in my job": "Role and Career Progression",
+    "I am fairly rewarded for my role": "Role and Career Progression",
+    "I receive sufficient training to help me achieve and advance in my role": "Role and Career Progression",
+    "I am happy with my professional development so far": "Role and Career Progression",
+    "I am happy with what my development looks like in the future": "Role and Career Progression",
+    "My manager is invested in my development": "Manager",
+    "My manager and I have a great working relationship": "Manager",
+    "I feel comfortable questioning and challenging my manager": "Manager",
+    "My team works well together": "Manager",
+    "I have the time to do my job well": "Manager",
+    "I have the resources to do my job well": "Manager",
+    "I have the time and resources to do my job well": "Manager",
+    "I understand the company strategy and direction": "Senior Management",
+    "Senior Management and employees trust each other": "Senior Management",
+    "There is transparent communication from Senior Management": "Senior Management",
+    "How likely is it that you would recommend Hanson Wade to a friend or colleague? (10 being strongly recommend)": "Recommendation"
+}
+
+def get_category(q):
+    return QUESTION_CATEGORIES.get(q, "Culture, Wellbeing and Inclusion ")
+
+if likert_cols:
+    st.sidebar.divider()
+    st.sidebar.subheader("Question Filters")
+    all_categories = sorted(list(set([get_category(q) for q in likert_cols])))
+    select_all_cat = st.sidebar.checkbox("Select all categories", value=True)
+
+    if select_all_cat:
+        selected_categories = st.sidebar.multiselect("Questions Category", options=all_categories, default=all_categories)
+    else:
+        selected_categories = st.sidebar.multiselect("Questions Category", options=all_categories)
+
+    likert_cols = [q for q in likert_cols if get_category(q) in selected_categories]
+
 st.divider()
 
 if dept_col in df.columns:
@@ -174,19 +212,25 @@ if selected_q and dept_col not in df.columns and tenure_col not in df.columns:
 
 # Heatmap or averages table
 st.subheader("All Ratings Overview")
-averages = df[likert_cols].mean().reset_index()
-averages.columns = ['Statement', 'Average Score']
-averages = averages.sort_values(by='Average Score', ascending=False)
-st.dataframe(
-    averages,
-    use_container_width=True,
-    hide_index=True,
-    column_config={
-        "Statement": st.column_config.TextColumn("Statement"),
-        "Average Score": st.column_config.NumberColumn(
-            "Average Score",
-            format="%.2f",
-            alignment="center"
-        )
-    }
-)
+if likert_cols:
+    averages = df[likert_cols].mean().reset_index()
+    averages.columns = ['Statement', 'Average Score']
+    averages['Category'] = averages['Statement'].apply(get_category)
+    averages = averages[['Category', 'Statement', 'Average Score']]
+    averages = averages.sort_values(by=['Category', 'Average Score'], ascending=[True, False])
+    st.dataframe(
+        averages,
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "Category": st.column_config.TextColumn("Category"),
+            "Statement": st.column_config.TextColumn("Statement"),
+            "Average Score": st.column_config.NumberColumn(
+                "Average Score",
+                format="%.2f",
+                alignment="center"
+            )
+        }
+    )
+else:
+    st.info("No categories selected.")
