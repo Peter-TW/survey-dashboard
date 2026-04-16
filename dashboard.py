@@ -91,10 +91,11 @@ nps_col = "How likely is it that you would recommend Hanson Wade to a friend or 
 
 nps_score = 0
 if nps_col in df.columns and not df.empty:
-    total_valid = len(df[nps_col].dropna())
+    nps_series = pd.to_numeric(df[nps_col], errors='coerce')
+    total_valid = len(nps_series.dropna())
     if total_valid > 0:
-        promoters = len(df[df[nps_col] >= 9])
-        detractors = len(df[df[nps_col] <= 6])
+        promoters = (nps_series >= 9).sum()
+        detractors = (nps_series <= 6).sum()
         nps_score = ((promoters / total_valid) - (detractors / total_valid)) * 100
 
 col1.metric("Total Responses", len(df))
@@ -127,7 +128,7 @@ QUESTION_CATEGORIES = {
 }
 
 def get_category(q):
-    return QUESTION_CATEGORIES.get(q, "Culture, Wellbeing and Inclusion ")
+    return QUESTION_CATEGORIES.get(q, "Culture, Wellbeing and Inclusion")
 
 if likert_cols:
     st.sidebar.divider()
@@ -189,7 +190,7 @@ if selected_q and tenure_col in df.columns:
     tenure_avg['Average Score Formatted'] = tenure_avg['Average Score'].round(2)
     
     tenure_order = ["< 6 months", "6 months - 1 year", "1 - 3 years", "3 -5 years", "> 5 years"]
-    active_tenures = [t for t in tenure_order if t in tenure_avg['Tenure'].values]
+    active_tenures = [t for t in tenure_order if t in tenure_avg['Tenure'].values] + sorted([t for t in tenure_avg['Tenure'].values if t not in tenure_order])
     
     tenure_avg['Tenure'] = pd.Categorical(tenure_avg['Tenure'], categories=active_tenures, ordered=True)
     tenure_avg = tenure_avg.sort_values(by='Tenure')
@@ -240,10 +241,11 @@ st.divider()
 st.subheader("NPS Analysis")
 
 def calc_nps(series):
-    total = len(series.dropna())
+    num_series = pd.to_numeric(series, errors='coerce')
+    total = len(num_series.dropna())
     if total == 0: return 0
-    promoters = (series >= 9).sum()
-    detractors = (series <= 6).sum()
+    promoters = (num_series >= 9).sum()
+    detractors = (num_series <= 6).sum()
     return ((promoters / total) - (detractors / total)) * 100
 
 if nps_col in df.columns:
@@ -274,7 +276,7 @@ if nps_col in df.columns:
         tenure_nps['NPS Score Formatted'] = tenure_nps['NPS Score'].round(0)
         
         tenure_order = ["< 6 months", "6 months - 1 year", "1 - 3 years", "3 -5 years", "> 5 years"]
-        active_nps_tenures = [t for t in tenure_order if t in tenure_nps['Tenure'].values]
+        active_nps_tenures = [t for t in tenure_order if t in tenure_nps['Tenure'].values] + sorted([t for t in tenure_nps['Tenure'].values if t not in tenure_order])
         
         tenure_nps['Tenure'] = pd.Categorical(tenure_nps['Tenure'], categories=active_nps_tenures, ordered=True)
         tenure_nps = tenure_nps.sort_values(by='Tenure')
