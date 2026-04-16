@@ -214,18 +214,27 @@ if selected_q and dept_col not in df.columns and tenure_col not in df.columns:
 # Heatmap or averages table
 st.subheader("All Ratings Overview")
 if likert_cols:
+    counts = df[likert_cols].count().reset_index()
+    counts.columns = ['Statement', 'Number of Responses']
     averages = df[likert_cols].mean().reset_index()
     averages.columns = ['Statement', 'Average Score']
-    averages['Category'] = averages['Statement'].apply(get_category)
-    averages = averages[['Category', 'Statement', 'Average Score']]
-    averages = averages.sort_values(by=['Category', 'Average Score'], ascending=[True, False])
+    
+    overview = pd.merge(averages, counts, on='Statement')
+    overview['Category'] = overview['Statement'].apply(get_category)
+    overview = overview[['Category', 'Statement', 'Number of Responses', 'Average Score']]
+    overview = overview.sort_values(by=['Category', 'Average Score'], ascending=[True, False])
+    
     st.dataframe(
-        averages,
+        overview,
         use_container_width=True,
         hide_index=True,
         column_config={
             "Category": st.column_config.TextColumn("Category"),
             "Statement": st.column_config.TextColumn("Statement"),
+            "Number of Responses": st.column_config.NumberColumn(
+                "Number of Responses",
+                alignment="center"
+            ),
             "Average Score": st.column_config.NumberColumn(
                 "Average Score",
                 format="%.2f",
