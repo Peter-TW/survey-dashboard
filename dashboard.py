@@ -36,7 +36,7 @@ def generate_dummy_data():
         data[q] = np.random.choice([1, 2, 3, 4, 5], p=[0.05, 0.1, 0.2, 0.45, 0.2], size=100)
     data["How likely is it that you would recommend Hanson Wade to a friend or colleague? (10 being strongly recommend)"] = np.random.choice(range(1, 11), size=100)
     data["Which team do you sit in?"] = np.random.choice(["IT", "HR", "Sales", "Marketing", "Production"], size=100)
-    data["How long have you been with Group?"] = np.random.choice(["< 1 year", "1-3 years", "3-5 years", "5+ years"], size=100)
+    data["How long have you been with Group?"] = np.random.choice(["< 6 month", "6 months - 1 year", "1-3 years", "3-5 years", ">5 years"], size=100)
     return pd.DataFrame(data)
 
 st.title("📊 Engagement Survey")
@@ -66,7 +66,9 @@ if dept_col in df.columns:
     df = df[df[dept_col].isin(selected_depts)]
 
 if tenure_col in df.columns:
-    all_tenures = sorted(df[tenure_col].dropna().unique().tolist())
+    base_tenure_order = ["< 6 month", "6 months - 1 year", "1-3 years", "3-5 years", ">5 years"]
+    unique_tenures = df[tenure_col].dropna().unique().tolist()
+    all_tenures = [t for t in base_tenure_order if t in unique_tenures] + sorted([t for t in unique_tenures if t not in base_tenure_order])
     
     # Implementing "Select All" behavior for Tenure
     select_all_tenure = st.sidebar.checkbox("Select all tenures", value=True)
@@ -150,6 +152,9 @@ if selected_q and tenure_col in df.columns:
     tenure_avg = df.groupby(tenure_col)[selected_q].mean().reset_index()
     tenure_avg.columns = ['Tenure', 'Average Score']
     tenure_avg['Average Score Formatted'] = tenure_avg['Average Score'].round(2)
+    
+    tenure_order = ["< 6 month", "6 months - 1 year", "1-3 years", "3-5 years", ">5 years"]
+    tenure_avg['Tenure'] = pd.Categorical(tenure_avg['Tenure'], categories=tenure_order, ordered=True)
     tenure_avg = tenure_avg.sort_values(by='Tenure')
     
     fig_tenure = px.bar(
@@ -158,6 +163,7 @@ if selected_q and tenure_col in df.columns:
         y='Average Score',
         text='Average Score Formatted',
         range_y=[0, 5.5],
+        category_orders={"Tenure": tenure_order},
         color_discrete_sequence=['#1f77b4']
     )
     fig_tenure.update_traces(textposition='outside')
