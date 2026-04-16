@@ -86,7 +86,7 @@ if dept_col not in df.columns and tenure_col not in df.columns:
 st.divider()
 
 # --- OVERALL METRICS ---
-col1, col2, col3 = st.columns(3)
+col1, col2 = st.columns(2)
 nps_col = "How likely is it that you would recommend Hanson Wade to a friend or colleague? (10 being strongly recommend)"
 
 nps_score = 0
@@ -100,12 +100,9 @@ if nps_col in df.columns and not df.empty:
 col1.metric("Total Responses", len(df))
 col2.metric("Net Promoter Score (NPS)", f"{nps_score:.0f}")
 
-# Calculate average across 1-5 scale questions
+# Extract 1-5 scale questions for later analysis charts
 numeric_cols = df.select_dtypes(include='number').columns
 likert_cols = [c for c in numeric_cols if c != nps_col]
-if likert_cols:
-    overall_avg = df[likert_cols].mean().mean() if not df.empty else 0
-    col3.metric("Overall Engagement Score", f"{overall_avg:.1f} / 5")
 
 st.divider()
 
