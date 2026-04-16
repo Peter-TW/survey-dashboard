@@ -38,7 +38,7 @@ def generate_dummy_data():
     data["Which team do you sit in?"] = np.random.choice(["IT", "HR", "Sales", "Marketing", "Production"], size=100)
     return pd.DataFrame(data)
 
-st.title("📊 Hanson Wade Engagement Survey")
+st.title("📊 Engagement Survey")
 st.markdown("Monitor and analyze employee engagement metrics derived directly from the Google Form.")
 
 df, is_live = load_data(GOOGLE_SHEET_CSV_URL)
@@ -92,9 +92,10 @@ if dept_col in df.columns:
         dept_counts, 
         x='Department', 
         y='Number of Responses',
-        title="Total Responses per Department",
+        text='Number of Responses',
         color_discrete_sequence=['#4B0082']
     )
+    fig_dept.update_traces(textposition='outside')
     st.plotly_chart(fig_dept, use_container_width=True)
     st.divider()
 
@@ -102,21 +103,29 @@ if dept_col in df.columns:
 st.subheader("Statement Analysis")
 selected_q = st.selectbox("Select a statement to analyze:", likert_cols)
 
-if selected_q:
-    fig = px.histogram(
-        df, 
-        x=selected_q, 
-        nbins=5, 
-        range_x=[0.5, 5.5],
-        color_discrete_sequence=['#4B0082'],
-        title=f"Response Distribution for: {selected_q}"
+if selected_q and dept_col in df.columns:
+    dept_avg = df.groupby(dept_col)[selected_q].mean().reset_index()
+    dept_avg.columns = ['Department', 'Average Score']
+    dept_avg['Average Score Formatted'] = dept_avg['Average Score'].round(2)
+    
+    fig = px.bar(
+        dept_avg, 
+        x='Department', 
+        y='Average Score',
+        text='Average Score Formatted',
+        range_y=[0, 5.5],
+        color_discrete_sequence=['#4B0082']
     )
-    fig.update_layout(xaxis_title="Rating (1 = Strongly Disagree, 5 = Strongly Agree)", yaxis_title="Number of Responses")
+    fig.update_traces(textposition='outside')
+    fig.update_layout(xaxis_title="Department", yaxis_title="Average Rating")
     st.plotly_chart(fig, use_container_width=True)
+elif selected_q:
+    st.info("Department data is required to view average ratings by department.")
 
 # Heatmap or averages table
 st.subheader("All Ratings Overview")
 averages = df[likert_cols].mean().reset_index()
 averages.columns = ['Statement', 'Average Score']
 averages = averages.sort_values(by='Average Score', ascending=False)
-st.dataframe(averages, use_container_width=True)
+styled_averages = averages.style.format({"Average Score": "{:.2f}"}).set_properties(**{'text-align': 'center'})
+st.dataframe(styled_averages, use_container_width=True)
