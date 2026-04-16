@@ -34,7 +34,7 @@ def generate_dummy_data():
     for q in questions:
         # scale 1-5
         data[q] = np.random.choice([1, 2, 3, 4, 5], p=[0.05, 0.1, 0.2, 0.45, 0.2], size=100)
-    data["How likely is it that you would recommend Hanson Wade to a friend or colleague? (10 being strongly recommend)"] = np.random.choice(range(1, 11), size=100)
+    data["How likely is it that you would recommend company to a friend or colleague? (10 being strongly recommend)"] = np.random.choice(range(1, 11), size=100)
     data["Which team do you sit in?"] = np.random.choice(["IT", "HR", "Sales", "Marketing", "Production"], size=100)
     data["How long have you been with Group?"] = np.random.choice(["< 6 months", "6 months - 1 year", "1 - 3 years", "3 -5 years", "> 5 years"], size=100)
     return pd.DataFrame(data)
@@ -87,7 +87,7 @@ st.divider()
 
 # --- OVERALL METRICS ---
 col1, col2 = st.columns(2)
-nps_col = "How likely is it that you would recommend Hanson Wade to a friend or colleague? (10 being strongly recommend)"
+nps_col = "How likely is it that you would recommend company to a friend or colleague? (10 being strongly recommend)"
 
 nps_score = 0
 if nps_col in df.columns and not df.empty:
@@ -124,7 +124,7 @@ QUESTION_CATEGORIES = {
     "I understand the company strategy and direction": "Senior Management",
     "Senior Management and employees trust each other": "Senior Management",
     "There is transparent communication from Senior Management": "Senior Management",
-    "How likely is it that you would recommend Hanson Wade to a friend or colleague? (10 being strongly recommend)": "Recommendation"
+    "How likely is it that you would recommend company to a friend or colleague? (10 being strongly recommend)": "Recommendation"
 }
 
 def get_category(q):
