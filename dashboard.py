@@ -36,6 +36,7 @@ def generate_dummy_data():
         data[q] = np.random.choice([1, 2, 3, 4, 5], p=[0.05, 0.1, 0.2, 0.45, 0.2], size=100)
     data["How likely is it that you would recommend Hanson Wade to a friend or colleague? (10 being strongly recommend)"] = np.random.choice(range(1, 11), size=100)
     data["Which team do you sit in?"] = np.random.choice(["IT", "HR", "Sales", "Marketing", "Production"], size=100)
+    data["How long have you been with Group?"] = np.random.choice(["< 1 year", "1-3 years", "3-5 years", "5+ years"], size=100)
     return pd.DataFrame(data)
 
 st.title("📊 Engagement Survey")
@@ -49,20 +50,36 @@ if not is_live:
 st.sidebar.header("Filters")
 
 dept_col = "Which team do you sit in?"
+tenure_col = "How long have you been with Group?"
+
 if dept_col in df.columns:
     all_depts = sorted(df[dept_col].dropna().unique().tolist())
     
-    # Implementing "Select All" behavior
-    select_all = st.sidebar.checkbox("Select all departments", value=True)
-    if select_all:
+    # Implementing "Select All" behavior for Departments
+    select_all_dept = st.sidebar.checkbox("Select all departments", value=True)
+    if select_all_dept:
         selected_depts = st.sidebar.multiselect("Select Department(s)", options=all_depts, default=all_depts)
     else:
         selected_depts = st.sidebar.multiselect("Select Department(s)", options=all_depts)
         
     # Apply filter
     df = df[df[dept_col].isin(selected_depts)]
-else:
-    st.sidebar.markdown("Use this to filter by date or department (if added to the form later).")
+
+if tenure_col in df.columns:
+    all_tenures = sorted(df[tenure_col].dropna().unique().tolist())
+    
+    # Implementing "Select All" behavior for Tenure
+    select_all_tenure = st.sidebar.checkbox("Select all tenures", value=True)
+    if select_all_tenure:
+        selected_tenures = st.sidebar.multiselect("Select Tenure(s)", options=all_tenures, default=all_tenures)
+    else:
+        selected_tenures = st.sidebar.multiselect("Select Tenure(s)", options=all_tenures)
+        
+    # Apply filter
+    df = df[df[tenure_col].isin(selected_tenures)]
+
+if dept_col not in df.columns and tenure_col not in df.columns:
+    st.sidebar.markdown("Use this to filter by date or department or tenure (if added to the form later).")
 
 st.divider()
 
@@ -94,6 +111,7 @@ if dept_col in df.columns:
     st.subheader("Responses by Department")
     dept_counts = df[dept_col].value_counts().reset_index()
     dept_counts.columns = ['Department', 'Number of Responses']
+    dept_counts = dept_counts.sort_values(by='Department')
     
     fig_dept = px.bar(
         dept_counts, 
@@ -114,6 +132,7 @@ if selected_q and dept_col in df.columns:
     dept_avg = df.groupby(dept_col)[selected_q].mean().reset_index()
     dept_avg.columns = ['Department', 'Average Score']
     dept_avg['Average Score Formatted'] = dept_avg['Average Score'].round(2)
+    dept_avg = dept_avg.sort_values(by='Department')
     
     fig = px.bar(
         dept_avg, 
@@ -126,8 +145,27 @@ if selected_q and dept_col in df.columns:
     fig.update_traces(textposition='outside')
     fig.update_layout(xaxis_title="Department", yaxis_title="Average Rating")
     st.plotly_chart(fig, use_container_width=True)
-elif selected_q:
-    st.info("Department data is required to view average ratings by department.")
+
+if selected_q and tenure_col in df.columns:
+    tenure_avg = df.groupby(tenure_col)[selected_q].mean().reset_index()
+    tenure_avg.columns = ['Tenure', 'Average Score']
+    tenure_avg['Average Score Formatted'] = tenure_avg['Average Score'].round(2)
+    tenure_avg = tenure_avg.sort_values(by='Tenure')
+    
+    fig_tenure = px.bar(
+        tenure_avg, 
+        x='Tenure', 
+        y='Average Score',
+        text='Average Score Formatted',
+        range_y=[0, 5.5],
+        color_discrete_sequence=['#1f77b4']
+    )
+    fig_tenure.update_traces(textposition='outside')
+    fig_tenure.update_layout(xaxis_title="How long have you been with Group?", yaxis_title="Average Rating")
+    st.plotly_chart(fig_tenure, use_container_width=True)
+
+if selected_q and dept_col not in df.columns and tenure_col not in df.columns:
+    st.info("Department and Tenure data are required to view breakdown analysis.")
 
 # Heatmap or averages table
 st.subheader("All Ratings Overview")
