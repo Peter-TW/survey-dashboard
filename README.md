@@ -52,7 +52,6 @@ Because the script is generated locally on your computer, you need to run the co
 
 When anyone fills out and submits your Google Form, their responses are instantly and securely saved into the **Google Sheet** that was generated automatically with the form.
 - The link to this Google Sheet is printed in the Execution Log (`Linked Spreadsheet URL:`) from Step 1.
-- You can also find it in your Google Drive, named `Hanson Wade Engagement Survey Responses`.
 - This Google Sheet acts as your live, continuously updating database. No manual CSV exporting is required!
 
 ### 3. Connect the Dashboard
