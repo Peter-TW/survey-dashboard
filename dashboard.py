@@ -24,10 +24,32 @@ def load_data(url):
 def generate_dummy_data():
     questions = [
         "Company cares about my wellbeing",
-        "The pressure in my job feels manageable",
+        "Company operates in a socially responsible manner",
+        "Company's culture is welcoming to people of all backgrounds",
+        "I am a valued member of my team",
         "I am able to provide my customers with great service",
+        "I am fairly rewarded for my role",
+        "I am happy in my job",
+        "I am happy with my professional development so far",
+        "I am happy with what my development looks like in the future",
         "I believe Company is a meritocracy",
-        "I am happy in my job"
+        "I believe Company offers a competitive benefits package",
+        "I feel comfortable questioning and challenging my manager",
+        "I feel comfortable questioning and challenging my peers",
+        "I have a good work/life balance",
+        "I have the resources to do my job well",
+        "I have the time to do my job well",
+        "I have the time and resources to do my job well",
+        "I receive sufficient training to help me achieve and advance in my role",
+        "I understand the company strategy and direction",
+        "My manager and I have a great working relationship",
+        "My manager is invested in my development",
+        "My team works well together",
+        "Senior Management and employees trust each other",
+        "The pressure in my job feels manageable",
+        "There is transparent communication from Senior Management",
+        "Employees are treated fairly regardless of race, gender, age, ethnicity, background",
+        "Employees treat each other with respect"
     ]
     np.random.seed(42)
     data = {"Timestamp": pd.date_range("2024-01-01", periods=100, freq='D')}
@@ -114,6 +136,7 @@ QUESTION_CATEGORIES = {
     "I receive sufficient training to help me achieve and advance in my role": "Role and Career Progression",
     "I am happy with my professional development so far": "Role and Career Progression",
     "I am happy with what my development looks like in the future": "Role and Career Progression",
+    
     "My manager is invested in my development": "Manager",
     "My manager and I have a great working relationship": "Manager",
     "I feel comfortable questioning and challenging my manager": "Manager",
@@ -121,9 +144,21 @@ QUESTION_CATEGORIES = {
     "I have the time to do my job well": "Manager",
     "I have the resources to do my job well": "Manager",
     "I have the time and resources to do my job well": "Manager",
+    "I am a valued member of my team": "Manager",
+    
     "I understand the company strategy and direction": "Senior Management",
     "Senior Management and employees trust each other": "Senior Management",
     "There is transparent communication from Senior Management": "Senior Management",
+    
+    "Company cares about my wellbeing": "Culture, Wellbeing and Inclusion",
+    "Company operates in a socially responsible manner": "Culture, Wellbeing and Inclusion",
+    "Company's culture is welcoming to people of all backgrounds": "Culture, Wellbeing and Inclusion",
+    "I believe Company offers a competitive benefits package": "Culture, Wellbeing and Inclusion",
+    "I feel comfortable questioning and challenging my peers": "Culture, Wellbeing and Inclusion",
+    "I have a good work/life balance": "Culture, Wellbeing and Inclusion",
+    "Employees are treated fairly regardless of race, gender, age, ethnicity, background": "Culture, Wellbeing and Inclusion",
+    "Employees treat each other with respect": "Culture, Wellbeing and Inclusion",
+    
     "How likely is it that you would recommend company to a friend or colleague? (10 being strongly recommend)": "Recommendation"
 }
 
