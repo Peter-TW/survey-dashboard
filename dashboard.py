@@ -4,13 +4,13 @@ import plotly.express as px
 import numpy as np
 
 # Set page aesthetic
-st.set_page_config(page_title="Hanson Wade Survey Dashboard", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="Company Survey Dashboard", layout="wide", initial_sidebar_state="expanded")
 
 # --- DATA LOADING ---
 # To use your live Google Sheet, change this URL. 
 # 1. Share your Google Sheet as "Anyone with the link can view".
 # 2. Get the Sheet ID from the URL and use the format below:
-GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1zxVOFaptCR50SZ4tCS0lkiV7zkbyGeigHrEd8QWdfSs/export?format=csv"
+GOOGLE_SHEET_CSV_URL = "YOUR_GOOGLE_SHEET_CSV_URL_HERE"
 
 @st.cache_data(ttl=60)  # cache data for 1 minute
 def load_data(url):
@@ -23,10 +23,10 @@ def load_data(url):
 
 def generate_dummy_data():
     questions = [
-        "Group cares about my wellbeing",
+        "Company cares about my wellbeing",
         "The pressure in my job feels manageable",
         "I am able to provide my customers with great service",
-        "I believe Group is a meritocracy",
+        "I believe Company is a meritocracy",
         "I am happy in my job"
     ]
     np.random.seed(42)
@@ -36,7 +36,7 @@ def generate_dummy_data():
         data[q] = np.random.choice([1, 2, 3, 4, 5], p=[0.05, 0.1, 0.2, 0.45, 0.2], size=100)
     data["How likely is it that you would recommend company to a friend or colleague? (10 being strongly recommend)"] = np.random.choice(range(1, 11), size=100)
     data["Which team do you sit in?"] = np.random.choice(["IT", "HR", "Sales", "Marketing", "Production"], size=100)
-    data["How long have you been with Group?"] = np.random.choice(["< 6 months", "6 months - 1 year", "1 - 3 years", "3 -5 years", "> 5 years"], size=100)
+    data["How long have you been with Company?"] = np.random.choice(["< 6 months", "6 months - 1 year", "1 - 3 years", "3 -5 years", "> 5 years"], size=100)
     return pd.DataFrame(data)
 
 st.title("📊 Engagement Survey")
@@ -50,7 +50,7 @@ if not is_live:
 st.sidebar.header("Filters")
 
 dept_col = "Which team do you sit in?"
-tenure_col = "How long have you been with Group?"
+tenure_col = "How long have you been with Company?"
 
 if dept_col in df.columns:
     all_depts = sorted(df[dept_col].dropna().unique().tolist())
@@ -108,7 +108,7 @@ likert_cols = [c for c in numeric_cols if c != nps_col]
 QUESTION_CATEGORIES = {
     "The pressure in my job feels manageable": "Role and Career Progression",
     "I am able to provide my customers with great service": "Role and Career Progression",
-    "I believe Group is a meritocracy": "Role and Career Progression",
+    "I believe Company is a meritocracy": "Role and Career Progression",
     "I am happy in my job": "Role and Career Progression",
     "I am fairly rewarded for my role": "Role and Career Progression",
     "I receive sufficient training to help me achieve and advance in my role": "Role and Career Progression",
@@ -205,7 +205,7 @@ if selected_q and tenure_col in df.columns:
         color_discrete_sequence=['#1f77b4']
     )
     fig_tenure.update_traces(textposition='outside')
-    fig_tenure.update_layout(xaxis_title="How long have you been with Group?", yaxis_title="Average Rating")
+    fig_tenure.update_layout(xaxis_title="How long have you been with Company?", yaxis_title="Average Rating")
     st.plotly_chart(fig_tenure, use_container_width=True)
 
 if selected_q and dept_col not in df.columns and tenure_col not in df.columns:
@@ -299,5 +299,5 @@ if nps_col in df.columns:
             color_discrete_sequence=['#1f77b4']
         )
         fig_nps_tenure.update_traces(textposition='outside')
-        fig_nps_tenure.update_layout(xaxis_title="How long have you been with Group?", yaxis_title="NPS Score", title="NPS by Tenure")
+        fig_nps_tenure.update_layout(xaxis_title="How long have you been with Company?", yaxis_title="NPS Score", title="NPS by Tenure")
         nps_col2.plotly_chart(fig_nps_tenure, use_container_width=True)
