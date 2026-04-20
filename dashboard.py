@@ -7,15 +7,16 @@ import numpy as np
 st.set_page_config(page_title="Company Survey Dashboard", layout="wide", initial_sidebar_state="expanded")
 
 # --- DATA LOADING ---
-# To use your live Google Sheet, change this URL. 
+# To use your live Google Sheet:
 # 1. Share your Google Sheet as "Anyone with the link can view".
-# 2. Get the Sheet ID from the URL and use the format below:
-GOOGLE_SHEET_CSV_URL = "YOUR_GOOGLE_SHEET_CSV_URL_HERE"
+# 2. Get the Sheet ID from the URL (the part between /d/ and /edit)
+GOOGLE_SHEET_ID = "YOUR_SHEET_ID_HERE"
 
 @st.cache_data(ttl=60)  # cache data for 1 minute
-def load_data(url):
+def load_data(sheet_id):
+    csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
     try:
-        df = pd.read_csv(url)
+        df = pd.read_csv(csv_url)
         return df, True
     except Exception as e:
         # Fallback to generated dummy data to showcase the dashboard
@@ -64,10 +65,10 @@ def generate_dummy_data():
 st.title("📊 Engagement Survey")
 st.markdown("Monitor and analyze employee engagement metrics derived directly from the Google Form.")
 
-df, is_live = load_data(GOOGLE_SHEET_CSV_URL)
+df, is_live = load_data(GOOGLE_SHEET_ID)
 
 if not is_live:
-    st.warning("⚠️ **Note:** Currently showing **Mock Data**. Please update `GOOGLE_SHEET_CSV_URL` in `dashboard.py` to see live results.")
+    st.warning("⚠️ **Note:** Currently showing **Mock Data**. Please update `GOOGLE_SHEET_ID` in `dashboard.py` to see live results.")
 
 st.sidebar.header("Filters")
 
